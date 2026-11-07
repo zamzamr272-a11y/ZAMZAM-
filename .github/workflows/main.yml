@@ -58,6 +58,10 @@ jobs:
           mkdir -p android/app/src/main/assets/www
           cp -a frontend/. android/app/src/main/assets/www/
 
+      - name: Fix BuildConfig.DEBUG in MainActivity
+        run: |
+          sed -i 's/BuildConfig\.DEBUG/((getApplicationInfo().flags \& android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0)/g' android/app/src/main/java/com/nexora/app/MainActivity.java
+
       - name: Build installable debug APK
         working-directory: android
         run: gradle --no-daemon :app:assembleDebug
@@ -119,6 +123,10 @@ jobs:
         run: |
           mkdir -p android/app/src/main/assets/www
           cp -a frontend/. android/app/src/main/assets/www/
+
+      - name: Fix BuildConfig.DEBUG in MainActivity
+        run: |
+          sed -i 's/BuildConfig\.DEBUG/((getApplicationInfo().flags \& android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0)/g' android/app/src/main/java/com/nexora/app/MainActivity.java
 
       - name: Build signed release APK
         working-directory: android
