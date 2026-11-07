@@ -1,0 +1,66 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: nexora
+      POSTGRES_USER: nexora
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - nexora-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexora -d nexora"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  api:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://nexora:${POSTGRES_PASSWORD}@db:5432/nexora
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      ENVIRONMENT: production
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8000}
+      AUTO_CREATE_SCHEMA: "false"
+      NEXORA_DATA_DIR: /app/backend/data
+      AUTH_RATE_LIMIT_PER_MINUTE: ${AUTH_RATE_LIMIT_PER_MINUTE:-12}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Makassar}
+      OCR_LANG: ${OCR_LANG:-ind+eng}
+    ports:
+      - "${NEXORA_PORT:-8000}:8000"
+    volumes:
+      - nexora-private-files:/app/backend/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    depends_on:
+      db:
+        condition: service_healthy
+
+  recurring-worker:
+    build: .
+    restart: unless-stopped
+    command: ["python", "-m", "app.recurring_worker"]
+    working_dir: /app/backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://nexora:${POSTGRES_PASSWORD}@db:5432/nexora
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      ENVIRONMENT: production
+      NEXORA_DATA_DIR: /app/backend/data
+      APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Makassar}
+      RECURRING_POLL_SECONDS: ${RECURRING_POLL_SECONDS:-900}
+    volumes:
+      - nexora-private-files:/app/backend/data
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
+volumes:
+  nexora-postgres:
+  nexora-private-files:

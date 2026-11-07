@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0B1117">
+  <meta name="description" content="NEXORA — kelola keuangan, catat keputusan investasi, dan tumbuh bersama komunitas.">
+  <title>NEXORA — Personal Finance & Community</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/nexora-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/styles.css">
+  <meta name="color-scheme" content="dark light">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="#home" aria-label="NEXORA Beranda">
+      <img src="./assets/nexora-mark.svg" alt="" class="brand-mark">
+      <span><b>NEXORA</b><small>FINANCE • INVEST • CONNECT</small></span>
+    </a>
+    <div class="workspace-label">WORKSPACE</div>
+    <nav class="main-nav" aria-label="Navigasi utama">
+      <button class="nav-item active" data-view="home"><span class="nav-icon">◫</span><span>Beranda</span><i></i></button>
+      <button class="nav-item" data-view="finance"><span class="nav-icon">↗</span><span>Keuangan</span><i></i></button>
+      <button class="nav-item" data-view="invest"><span class="nav-icon">⌁</span><span>Investasi</span><i></i></button>
+      <button class="nav-item" data-view="community"><span class="nav-icon">◎</span><span>Komunitas</span><i></i></button>
+    </nav>
+    <div class="workspace-label tools-label">PREFERENSI</div>
+    <nav class="main-nav">
+      <button class="nav-item" data-view="profile"><span class="nav-icon">◉</span><span>Profil & keamanan</span><i></i></button>
+      <button class="nav-item" data-action="help"><span class="nav-icon">?</span><span>Pusat bantuan</span><i></i></button>
+    </nav>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-status">
+      <span class="status-dot"></span>
+      <div><b id="connection-label">Mode pratinjau</b><small id="connection-detail">Data contoh lokal · tidak tersinkron</small></div>
+    </div>
+    <button class="side-profile" data-view="profile">
+      <span class="avatar" id="sidebar-avatar">N</span>
+      <span class="side-profile-copy"><b id="sidebar-name">NEXORA Guest</b><small id="sidebar-role">Preview workspace</small></span>
+      <span class="more">•••</span>
+    </button>
+    <div class="sidebar-foot">NEXORA <span>•</span> BUILD 0.1.0</div>
+  </aside>
+
+  <main class="main-area">
+    <header class="topbar">
+      <div class="mobile-brand"><img src="./assets/nexora-mark.svg" alt=""><b>NEXORA</b></div>
+      <div class="breadcrumb"><span>Workspace</span><span class="crumb-slash">/</span><b id="breadcrumb-current">Beranda</b></div>
+      <div class="topbar-actions">
+        <span class="today-label" id="today-label"></span>
+        <button class="icon-button" id="theme-toggle" aria-label="Ganti tema" title="Ganti tema">◐</button>
+        <button class="icon-button notification-button" id="notification-button" aria-label="Notifikasi" title="Notifikasi">♧<i></i></button>
+        <button class="top-avatar" data-view="profile" id="top-avatar">N</button>
+      </div>
+    </header>
+    <div class="preview-banner" id="preview-banner">
+      <span class="banner-icon">✦</span>
+      <span><b>Mode pratinjau</b> — angka dan transaksi contoh hanya untuk melihat desain. Hubungkan server NEXORA dan masuk untuk menggunakan data pribadi.</span>
+      <button id="banner-connect">Hubungkan</button>
+      <button class="banner-close" id="banner-close" aria-label="Tutup">×</button>
+    </div>
+    <section id="view-container" class="view-container" aria-live="polite"></section>
+    <footer class="app-footer"><span>© 2026 NEXORA</span><span>Keuanganmu, kendalimu.</span><span class="footer-status"><i></i> Privacy-first workspace</span></footer>
+  </main>
+</div>
+<nav class="mobile-nav" aria-label="Navigasi mobile">
+  <button class="active" data-view="home"><span>◫</span><small>Beranda</small></button>
+  <button data-view="finance"><span>↗</span><small>Keuangan</small></button>
+  <button data-view="invest"><span>⌁</span><small>Investasi</small></button>
+  <button data-view="community"><span>◎</span><small>Komunitas</small></button>
+  <button data-view="profile"><span>◉</span><small>Profil</small></button>
+</nav>
+<div id="modal-root"></div>
+<div id="toast-root" class="toast-root" aria-live="polite"></div>
+<script src="./assets/app.js" defer></script>
+</body>
+</html>

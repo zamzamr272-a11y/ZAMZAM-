@@ -1,0 +1,13 @@
+{
+  "name": "NEXORA — Finance & Community",
+  "short_name": "NEXORA",
+  "description": "Kelola keuangan, catat keputusan investasi, dan tumbuh bersama komunitas.",
+  "lang": "id-ID",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B1117",
+  "theme_color": "#0B1117",
+  "icons": [
+    { "src": "./assets/nexora-mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

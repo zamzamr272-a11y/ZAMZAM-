@@ -1,0 +1,10 @@
+fastapi==0.128.2
+uvicorn[standard]>=0.40,<1
+SQLAlchemy==2.0.50
+alembic==1.18.4
+argon2-cffi==25.1.0
+psycopg[binary]>=3.2,<4
+python-dotenv>=1.0,<2
+pytesseract==0.3.13
+Pillow>=12.0,<13
+pdf2image>=1.17,<2
