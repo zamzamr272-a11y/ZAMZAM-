@@ -1,0 +1,73 @@
+name: Deploy NEXORA backend to VPS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nexora-vps-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v6
+
+      - name: Validate VPS deployment secrets
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+        run: |
+          test -n "$VPS_HOST" || { echo 'Missing VPS_HOST'; exit 1; }
+          test -n "$VPS_USER" || { echo 'Missing VPS_USER'; exit 1; }
+          test -n "$VPS_SSH_PRIVATE_KEY" || { echo 'Missing VPS_SSH_PRIVATE_KEY'; exit 1; }
+          test -n "$VPS_KNOWN_HOSTS" || { echo 'Missing VPS_KNOWN_HOSTS'; exit 1; }
+          test -n "$VPS_PATH" || { echo 'Missing VPS_PATH'; exit 1; }
+          case "$VPS_PATH" in /*) ;; *) echo 'VPS_PATH must be an absolute path'; exit 1 ;; esac
+
+      - name: Configure verified SSH connection
+        env:
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > "$HOME/.ssh/nexora_deploy_key"
+          chmod 600 "$HOME/.ssh/nexora_deploy_key"
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Copy source without secrets or user data
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+        run: |
+          rsync -az \
+            --exclude='.git/' \
+            --exclude='.env' \
+            --exclude='backend/data/' \
+            --exclude='backups/' \
+            --exclude='android/.gradle/' \
+            --exclude='android/**/build/' \
+            -e "ssh -i $HOME/.ssh/nexora_deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+            ./ "$VPS_USER@$VPS_HOST:$VPS_PATH/"
+
+      - name: Validate server environment and deploy containers
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+        run: |
+          printf -v remote_path '%q' "$VPS_PATH"
+          remote_command="cd $remote_path && test -f .env && docker compose config -q && docker compose up --build -d && docker compose ps"
+          ssh -i "$HOME/.ssh/nexora_deploy_key" \
+            -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            "$VPS_USER@$VPS_HOST" "$remote_command"
